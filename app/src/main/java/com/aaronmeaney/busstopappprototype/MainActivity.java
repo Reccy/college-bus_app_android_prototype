@@ -3,15 +3,13 @@ package com.aaronmeaney.busstopappprototype;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.widget.Toast;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.Gson;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -26,6 +24,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     // TODO: Add toggle for user and GPS position
 
     private GoogleMap mMap;
+    private Marker busMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,19 +47,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 final BusPositionResult bp = response.body();
 
                 if (bp != null) {
-                    System.out.println("RESPONSE: " + response.body());
-                    Toast.makeText(MainActivity.this, bp.toString(), Toast.LENGTH_LONG).show();
-
-                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                        @Override
-                        public void onMapLoaded() {
-
-                            // Add a marker for the bus
-                            LatLng busMarker = new LatLng(bp.getBusPosition().getLatitude(), bp.getBusPosition().getLongitude());
-                            mMap.addMarker(new MarkerOptions().position(busMarker).title("Bus Position"));
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(busMarker, 16f));
-                        }
-                    });
+                    setBusPositionMarker(bp.getBusPosition());
                 }
                 else {
                     Toast.makeText(MainActivity.this, "BusPosition is null!", Toast.LENGTH_SHORT).show();
@@ -79,6 +66,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
+    /**
+     * Set the bus marker's position by latitude/longitude. Create it if it's not been instantiated yet.
+     * @param bp Bus Marker latitude/longitude object
+     */
+    private void setBusPositionMarker(BusPosition bp) {
+        if (busMarker == null) {
+            busMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(bp.getLatitude(), bp.getLongitude())).title("Bus Position"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(busMarker.getPosition(), 16f));
+        } else {
+            busMarker.setPosition(new LatLng(bp.getLatitude(), bp.getLongitude()));
+        }
+    }
 
     /**
      * Manipulates the map once available.
