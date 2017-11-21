@@ -2,7 +2,6 @@ package com.aaronmeaney.busstopappprototype;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -10,10 +9,16 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -34,31 +39,37 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         // Setup BusAppService
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl("https://bus-app-prototype-api-reccy.c9users.io/")
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create());
 
-        Retrofit retrofit = retrofitBuilder.build();
+        BusAppService busAppService = retrofitBuilder.build().create(BusAppService.class);
 
-        BusAppService service = retrofit.create(BusAppService.class);
-        Call<BusPositionResult> call = service.busPosition();
-
-        call.enqueue(new Callback<BusPositionResult>() {
-            @Override
-            public void onResponse(Call<BusPositionResult> call, Response<BusPositionResult> response) {
-                final BusPositionResult bp = response.body();
-
-                if (bp != null) {
-                    setBusPositionMarker(bp.getBusPosition());
+        busAppService.busPosition()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .repeat()
+            .subscribe(new Observer<BusPositionResult>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+                    System.out.println("BUS APP SERVICE SUBSCRIBED");
                 }
-                else {
-                    Toast.makeText(MainActivity.this, "BusPosition is null!", Toast.LENGTH_SHORT).show();
-                }
-            }
 
-            @Override
-            public void onFailure(Call<BusPositionResult> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "BusAppService Error!", Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onNext(BusPositionResult busPositionResult) {
+                    System.out.println("BUS APP SERVICE RESULTS: " + busPositionResult.getBusPosition().toString());
+                    setBusPositionMarker(busPositionResult.getBusPosition());
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    System.out.println("BUS APP SERVICE ERROR: " + e);
+                }
+
+                @Override
+                public void onComplete() {
+                    System.out.println("BUS APP SERVICE COMPLETE");
+                }
+            });
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -91,5 +102,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        System.out.println("MAP READY");
     }
+
+
 }
