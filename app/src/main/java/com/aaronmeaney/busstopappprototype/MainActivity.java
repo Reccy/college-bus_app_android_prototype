@@ -23,11 +23,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    // TODO: Add zoom only on startup
-    // TODO: Add continuous update for marker
-    // TODO: Change marker style to look like the user icon on Google Maps
-    // TODO: Add toggle for user and GPS position
-
     private GoogleMap mMap;
     private Marker busMarker;
 
