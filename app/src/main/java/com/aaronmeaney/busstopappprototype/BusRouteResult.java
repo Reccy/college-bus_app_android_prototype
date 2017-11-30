@@ -1,0 +1,26 @@
+package com.aaronmeaney.busstopappprototype;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
+
+public class BusRouteResult {
+    @SerializedName("success")
+    boolean success;
+
+    @SerializedName("route")
+    ArrayList<BusPosition> route;
+
+    boolean isSuccess() {
+        return success;
+    }
+
+    ArrayList<BusPosition> getRoute() {
+        return route;
+    }
+
+    @Override
+    public String toString() {
+        return "success: " + isSuccess() + ", bus_position: " + route.toString();
+    }
+}
