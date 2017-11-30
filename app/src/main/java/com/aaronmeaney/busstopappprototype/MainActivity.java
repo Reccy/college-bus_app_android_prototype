@@ -54,6 +54,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .repeat()
+            .retry()
             .subscribe(new Observer<BusPositionResult>() {
                 @Override
                 public void onSubscribe(Disposable d) {
@@ -62,8 +63,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                 @Override
                 public void onNext(BusPositionResult busPositionResult) {
-                    System.out.println("BUS APP SERVICE RESULTS -> BUS_POSITION: " + busPositionResult.getBusPosition().toString());
-                    setBusPositionMarker(busPositionResult.getBusPosition());
+                    System.out.println("BUS APP SERVICE RESULTS -> BUS_POSITION: " + busPositionResult.toString());
+                    if (busPositionResult.getBusPosition() != null)
+                    {
+                        setBusPositionMarker(busPositionResult.getBusPosition());
+                    }
                 }
 
                 @Override
@@ -82,6 +86,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .repeat()
+                .retry()
                 .subscribe(new Observer<BusRouteResult>() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -90,8 +95,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                     @Override
                     public void onNext(BusRouteResult busRouteResult) {
-                        System.out.println("BUS APP SERVICE RESULTS -> BUS_ROUTE: " + busRouteResult.getRoute().toString());
-                        if (!busRouteList.equals(busRouteResult.getRoute())) {
+                        System.out.println("BUS APP SERVICE RESULTS -> BUS_ROUTE: " + busRouteResult.toString());
+                        if (!busRouteList.equals(busRouteResult.getRoute()) && busRouteResult.getRoute() != null) {
                             busRouteList = busRouteResult.getRoute();
                             setBusRoutePolyline(busRouteResult.getRoute());
                         }

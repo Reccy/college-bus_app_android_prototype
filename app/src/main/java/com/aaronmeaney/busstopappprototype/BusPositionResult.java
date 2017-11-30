@@ -19,6 +19,13 @@ public class BusPositionResult {
 
     @Override
     public String toString() {
-        return "success: " + isSuccess() + ", bus_position: " + getBusPosition().toString();
+        if (busPosition != null)
+        {
+            return "success: " + isSuccess() + ", bus_position: " + getBusPosition().toString();
+        }
+        else
+        {
+            return "success: " + isSuccess();
+        }
     }
 }

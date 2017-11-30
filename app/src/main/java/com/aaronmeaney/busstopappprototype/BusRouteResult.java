@@ -21,6 +21,14 @@ public class BusRouteResult {
 
     @Override
     public String toString() {
-        return "success: " + isSuccess() + ", bus_position: " + route.toString();
+        if (route != null)
+        {
+            return "success: " + isSuccess() + ", bus_position: " + route.toString();
+        }
+        else
+        {
+            return "success: " + isSuccess();
+        }
+
     }
 }
