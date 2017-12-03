@@ -2,6 +2,7 @@ package com.aaronmeaney.busstopappprototype;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -22,6 +23,9 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -32,6 +36,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker busPositionMarker;
     private Polyline busRoutePolyline;
     private ArrayList<BusPosition> busRouteList;
+    private boolean busIsDriving;
+
+    private BusAppService busAppService;
+
+    private FloatingActionButton fabToggleBusDriving;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +49,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Instantiate member variables
         busRouteList = new ArrayList<>();
+        busIsDriving = true;
+
+        // Get UI References
+        fabToggleBusDriving = findViewById(R.id.toggle_bus_driving);
 
         // Setup BusAppService
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
@@ -47,7 +60,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create());
 
-        BusAppService busAppService = retrofitBuilder.build().create(BusAppService.class);
+        busAppService = retrofitBuilder.build().create(BusAppService.class);
 
         // Subscribe to the bus position
         busAppService.busPosition()
@@ -113,6 +126,45 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
 
+        // Subscribe to the "is bus driving" updates
+        busAppService.busDriving()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .repeat()
+                .retry()
+                .subscribe(new Observer<BusDrivingResult>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        System.out.println("BUS APP SERVICE SUBSCRIBED -> BUS_DRIVING");
+                    }
+
+                    @Override
+                    public void onNext(BusDrivingResult busDrivingResult) {
+                        System.out.println("BUS APP SERVICE RESULTS -> BUS_ROUTE: " + busDrivingResult.toString());
+                        if (busDrivingResult.isSuccess()) {
+                            busIsDriving = busDrivingResult.isDriving();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        System.out.println("BUS APP SERVICE ERROR -> BUS_DRIVING: " + e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        System.out.println("BUS APP SERVICE COMPLETE -> BUS_DRIVING");
+                    }
+                });
+
+        // Setup the FAB to toggle the bus state
+        fabToggleBusDriving.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setBusIsDriving(!busIsDriving);
+            }
+        });
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -124,7 +176,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
      * @param bp Bus Marker latitude/longitude object
      */
     private void setBusPositionMarker(BusPosition bp) {
-        String snippetData = "Latitude: " + bp.getLatitude() + "\nLongitude: " + bp.getLongitude();
+        String snippetData = "Latitude: " + bp.getLatitude() + "\nLongitude: " + bp.getLongitude() + "\nIs Driving: " + busIsDriving;
         if (busPositionMarker == null) {
             busPositionMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(bp.getLatitude(), bp.getLongitude()))
                     .title("Bus Position")
@@ -165,6 +217,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         busRoutePolyline = mMap.addPolyline(busRouteOptions);
+    }
+
+    /**
+     * POSTs the isDriving paramater to the API, setting the isDriving value
+     * @param isDriving The value to set isDriving as on the API
+     */
+    private void setBusIsDriving(boolean isDriving) {
+        busAppService.setBusDriving(new DrivingRequest(isDriving))
+                .enqueue(new Callback<BusDrivingResult>() {
+                    @Override
+                    public void onResponse(Call<BusDrivingResult> call, Response<BusDrivingResult> response) {
+                        System.out.println("Response success: " + response.isSuccessful() + " ==> " + response.body().isDriving());
+                    }
+
+                    @Override
+                    public void onFailure(Call<BusDrivingResult> call, Throwable t) {
+                        System.out.println("Something bad happened...");
+                    }
+                });
     }
 
     /**

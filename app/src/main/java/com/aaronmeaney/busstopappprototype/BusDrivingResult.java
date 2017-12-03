@@ -2,26 +2,26 @@ package com.aaronmeaney.busstopappprototype;
 
 import com.google.gson.annotations.SerializedName;
 
-public class BusPositionResult {
+public class BusDrivingResult {
     @SerializedName("success")
     private boolean success;
 
-    @SerializedName("bus_position")
-    private BusPosition busPosition;
+    @SerializedName("is_driving")
+    private boolean driving;
 
     boolean isSuccess() {
         return success;
     }
 
-    BusPosition getBusPosition() {
-        return busPosition;
+    boolean isDriving() {
+        return driving;
     }
 
     @Override
     public String toString() {
-        if (busPosition != null)
+        if (success)
         {
-            return "success: " + isSuccess() + ", bus_position: " + getBusPosition().toString();
+            return "success: " + isSuccess() + ", bus_driving: " + isDriving();
         }
         else
         {
