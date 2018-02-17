@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">BusStopAppPrototype</string>
+    <string name="app_name">Bus Stop</string>
     <string name="title_activity_main">Bus Location Map</string>
 </resources>
