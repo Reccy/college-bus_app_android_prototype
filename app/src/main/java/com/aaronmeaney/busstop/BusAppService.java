@@ -1,4 +1,4 @@
-package com.aaronmeaney.busstopappprototype;
+package com.aaronmeaney.busstop;
 
 import io.reactivex.Observable;
 import retrofit2.Call;

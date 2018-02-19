@@ -1,4 +1,4 @@
-package com.aaronmeaney.busstopappprototype;
+package com.aaronmeaney.busstop;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;

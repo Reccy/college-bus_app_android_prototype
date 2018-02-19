@@ -11,7 +11,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.aaronmeaney.busstopappprototype.MainActivity" />
+        tools:context="com.aaronmeaney.busstop.MainActivity" />
 
     <!-- Toggle Bus Driving Button -->
     <android.support.design.widget.FloatingActionButton

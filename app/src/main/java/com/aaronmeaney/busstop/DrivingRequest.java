@@ -1,4 +1,4 @@
-package com.aaronmeaney.busstopappprototype;
+package com.aaronmeaney.busstop;
 
 import com.google.gson.annotations.SerializedName;
 
