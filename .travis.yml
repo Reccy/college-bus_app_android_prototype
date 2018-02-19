@@ -5,6 +5,7 @@ env:
   global:
     - BUS_STOP_MAJOR_VERSION=0
     - BUS_STOP_MINOR_VERSION=1
+    - BUS_STOP_PATCH_VERSION=1
 android:
   components:
   - tools
@@ -31,7 +32,7 @@ before_install:
 before_deploy:
   - git config --local user.name "Reccy"
   - git config --local user.email "aaronmeaney@hotmail.com"
-  - git tag -a ${BUS_STOP_MAJOR_VERSION}.${BUS_STOP_MINOR_VERSION} -m "Travis build $TRAVIS_BUILD_NUMBER pushed a tag."
+  - git tag -a ${BUS_STOP_MAJOR_VERSION}.${BUS_STOP_MINOR_VERSION}.${BUS_STOP_PATCH_VERSION}_build${TRAVIS_BUILD_NUMBER} -m "Travis build $TRAVIS_BUILD_NUMBER pushed a tag."
 deploy:
   provider: releases
   api_key:
