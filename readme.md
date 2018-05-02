@@ -4,9 +4,5 @@
 
 As this is a proof-of-concept application, the data is provided by a Unity simulation of multiple bus routes around Dublin inner-city. This data is collected and is sent to a web server for analysis, which is then read by the Android application.
 
-This project is still under development and is estimated to be completed in May.
-
-### Project Links:
-GitHub Android App link: https://github.com/Reccy/college-bus_app_android  
-GitHub API link: https://github.com/Reccy/college-bus_app_api  
-GitHub Unity Simulation link: https://github.com/Reccy/college-bus_app_simulation
+This is the outdates prototype of the Android App.
+Please see this link for the correct repo: https://github.com/Reccy/college-bus_app_android
